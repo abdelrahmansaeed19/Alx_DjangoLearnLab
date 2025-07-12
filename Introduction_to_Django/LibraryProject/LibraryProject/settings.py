@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bookshelf',  # This is the app where the Book model is defined
 ]
 
 MIDDLEWARE = [
