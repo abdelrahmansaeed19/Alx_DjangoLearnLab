@@ -10,8 +10,10 @@ from relationship_app.models import Author, Book, Library, Librarian
 # Sample queries
 
 # 1. Query all books by a specific author (e.g., author named "J.K. Rowling")
-author = Author.objects.get(name="J.K. Rowling")
+author_name = "J.K. Rowling"  # Replace with the actual author name
+author = Author.objects.get(name=author_name)  # Replace 'author_name' with the actual author name
 books_by_author = author.books.all()
+objects = Book.objects.filter(author=author)  # Alternative way to get books by author
 print(f"Books by {author.name}: {[book.title for book in books_by_author]}")
 
 # 2. List all books in a library (e.g., library named "Central Library")
