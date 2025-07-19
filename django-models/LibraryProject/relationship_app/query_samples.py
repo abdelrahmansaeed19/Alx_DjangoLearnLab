@@ -15,7 +15,8 @@ books_by_author = author.books.all()
 print(f"Books by {author.name}: {[book.title for book in books_by_author]}")
 
 # 2. List all books in a library (e.g., library named "Central Library")
-library = Library.objects.get(name="library_name")
+library_name = "Central Library"  # Replace with the actual library name
+library = Library.objects.get(name=library_name)  # Replace 'library_name' with the actual library name
 books_in_library = library.books.all()
 print(f"Books in {library.name}: {[book.title for book in books_in_library]}")
 
