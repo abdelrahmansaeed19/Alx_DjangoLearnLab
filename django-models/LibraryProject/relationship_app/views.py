@@ -8,7 +8,8 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import permission_required
 from .forms import BookForm
 
 def list_books(request):
