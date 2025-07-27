@@ -72,6 +72,28 @@ CSP_SCRIPT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'", 'fonts.googleapis.com')  # if you're using Google Fonts
 CSP_FONT_SRC = ("'self'", 'fonts.gstatic.com')
 
+# SECURITY: Force HTTPS redirects
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP to HTTPS
+
+# SECURITY: HSTS (Strict Transport Security)
+SECURE_HSTS_SECONDS = 31536000  # One year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply to subdomains too
+SECURE_HSTS_PRELOAD = True  # Allow browser preload of HSTS
+
+# SECURITY: Secure cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# SECURITY: Prevent MIME-sniffing (X-Content-Type-Options)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# SECURITY: Enable browser's XSS protection
+SECURE_BROWSER_XSS_FILTER = True
+
+# SECURITY: Clickjacking protection
+X_FRAME_OPTIONS = 'DENY'
+
+
 ROOT_URLCONF = 'LibraryProject.urls'
 
 TEMPLATES = [
