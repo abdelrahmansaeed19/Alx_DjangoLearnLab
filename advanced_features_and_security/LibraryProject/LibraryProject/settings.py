@@ -87,6 +87,8 @@ CSRF_COOKIE_SECURE = True
 # SECURITY: Prevent MIME-sniffing (X-Content-Type-Options)
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # SECURITY: Enable browser's XSS protection
 SECURE_BROWSER_XSS_FILTER = True
 
