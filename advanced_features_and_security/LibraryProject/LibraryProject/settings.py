@@ -23,9 +23,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-0gquv-@w-3k0$2*7(oq&5!d-&*dy9v7-!+aof65*uc2#c1b$#a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
+
+# Prevent content sniffing
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enable browser XSS protection
+SECURE_BROWSER_XSS_FILTER = True
+
+# Prevent clickjacking
+X_FRAME_OPTIONS = 'DENY'
+
+# Send cookies only over HTTPS (if using HTTPS in production)
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 
 
 # Application definition
@@ -38,7 +52,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bookshelf',  # This is the app where the Book model is defined
-    'relationship_app',  # This is the app where the Author, Library, and Librarian models are defined
+    'relationship_app',
+    'csp'  # This is the app where the Author, Library, and Librarian models are defined
 ]
 
 MIDDLEWARE = [
@@ -49,7 +64,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',  # Add this line to enable CSP middleware
 ]
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", 'fonts.googleapis.com')  # if you're using Google Fonts
+CSP_FONT_SRC = ("'self'", 'fonts.gstatic.com')
 
 ROOT_URLCONF = 'LibraryProject.urls'
 

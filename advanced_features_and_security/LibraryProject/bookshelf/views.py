@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import permission_required, login_required
 from django.shortcuts import render, get_object_or_404
 from .models import Book
+from .forms import BookForm
 from django.http import HttpResponseForbidden
 
 @login_required
@@ -13,9 +14,13 @@ def book_list(request):
 @permission_required('bookshelf.can_create', raise_exception=True)
 def create_book(request):
     if request.method == 'POST':
-        # handle form logic
-        ...
-    return render(request, 'bookshelf/create_book.html')
+        form = BookForm(request.POST)
+        if form.is_valid():  # Prevents bad input
+            form.save()
+            return redirect('book_list')
+    else:
+        form = BookForm()
+    return render(request, 'bookshelf/form_example.html', {'form': form})
 
 @login_required
 @permission_required('bookshelf.can_edit', raise_exception=True)
@@ -34,3 +39,5 @@ def delete_book(request, pk):
         book.delete()
         ...
     return render(request, 'bookshelf/delete_book.html', {'book': book})
+
+
