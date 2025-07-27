@@ -116,7 +116,7 @@ USE_TZ = True
 
 
 # Add this line
-AUTH_USER_MODEL = 'relationship_app.CustomUser'
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
 
 # Also ensure media files are properly configured
 MEDIA_URL = '/media/'
