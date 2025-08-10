@@ -93,7 +93,9 @@ class BookAPITestCase(APITestCase):
         response = self.client.post(self.create_url, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         data = response.json()
-        self.assertEqual(data['title'], payload['title'])
+        # self.assertEqual(data['title'], payload['title'])
+        self.assertEqual(response.data['title'], payload['title'])
+        
         # Confirm it exists in DB
         self.assertTrue(Book.objects.filter(title=payload['title']).exists())
 
