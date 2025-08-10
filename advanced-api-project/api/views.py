@@ -16,21 +16,21 @@ Permissions are applied to restrict modifications to authenticated users.
 """
 
 
-class ListBooksView(generics.ListAPIView):
+class ListView(generics.ListAPIView):
     """Retrieve a list of all books."""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.AllowAny]  # Public read access
 
 
-class RetrieveBookView(generics.RetrieveAPIView):
+class DetailView(generics.RetrieveAPIView):
     """Retrieve a single book by its ID."""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.AllowAny]  # Public read access
 
 
-class CreateBookView(generics.CreateAPIView):
+class CreateView(generics.CreateAPIView):
     """Create a new book. Only for authenticated users."""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -51,7 +51,7 @@ class CreateBookView(generics.CreateAPIView):
 
 
 
-class UpdateBookView(generics.UpdateAPIView):
+class UpdateView(generics.UpdateAPIView):
     """Update an existing book. Only for authenticated users."""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -65,7 +65,7 @@ class UpdateBookView(generics.UpdateAPIView):
         serializer.save()
 
 
-class DeleteBookView(generics.DestroyAPIView):
+class DeleteView(generics.DestroyAPIView):
     """Delete a book. Only for authenticated users."""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
