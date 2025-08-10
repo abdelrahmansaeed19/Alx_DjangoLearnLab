@@ -88,6 +88,10 @@ class BookAPITestCase(APITestCase):
 
     def test_create_book_authenticated(self):
         """Authenticated POST creates a book and returns 201 and the created data."""
+         # ✅ Login the test user
+        login_successful = self.client.login(username="testuser", password="testpassword")
+        self.assertTrue(login_successful)
+
         self.client.force_authenticate(user=self.user)
         payload = {"title": "New Book", "publication_year": 2020, "author": self.author_rowling.pk}
         response = self.client.post(self.create_url, payload, format='json')
@@ -95,7 +99,7 @@ class BookAPITestCase(APITestCase):
         data = response.json()
         # self.assertEqual(data['title'], payload['title'])
         self.assertEqual(response.data['title'], payload['title'])
-        
+
         # Confirm it exists in DB
         self.assertTrue(Book.objects.filter(title=payload['title']).exists())
 
