@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile, Post, Comment
+from taggit.forms import TagWidget
 
 
 class PostForm(forms.ModelForm):
@@ -14,11 +15,12 @@ class PostForm(forms.ModelForm):
     image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}))
     class Meta:
         model = Post
-        fields = ['title', 'post_type', 'content', 'image']
+        fields = ['title', 'post_type', 'content', 'image', 'tags']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'tags': TagWidget(),
         }
 
 class CommentForm(forms.ModelForm):

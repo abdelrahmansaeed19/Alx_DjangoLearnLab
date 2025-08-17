@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'blog.apps.BlogConfig',  # Your blog app
     'rest_framework',  # Django REST Framework for API support
+    'taggit',  # Django Taggit for tagging functionality
 ]
 
 MIDDLEWARE = [

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from taggit.managers import TaggableManager
 #from __future__ import annotations
 from typing import Any
 class Post(models.Model):
@@ -23,6 +24,7 @@ class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tags = TaggableManager()  # Using Django Taggit for tagging functionality
 
     def __str__(self):
         return f"Comment by {self.author.username} on {self.post.title}"
