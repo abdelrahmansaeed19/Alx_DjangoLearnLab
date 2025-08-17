@@ -1,0 +1,45 @@
+<h1>Posts-list</h1>
+
+{% block content %}
+    <h2>All Posts</h2>
+    <ul>
+        {% if user.is_authenticated %}
+            <p>Welecome, {{ user.username}}</p>
+            <li><a href="{% url 'post-create' %}">Create New Post</a></li>
+        {% endif %}
+        {% for post in posts %}
+            <li>
+                <strong>{{ post.title }}</strong> by {{ post.author.username }} on {{ post.published_date|date:"Y-m-d" }}
+                <br>
+                <a href="{% url 'post-detail' post.pk %}">View details</a>
+            </li>
+        {% empty %}
+            <li>No posts available.</li>
+        {% endfor %}
+    </ul>
+
+    {% if is_paginated %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+{% endblock %}
+
+<hr>
+
+<a href="{% url 'home'%}">Back Home</a>
+

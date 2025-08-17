@@ -4,7 +4,22 @@ from typing import Any
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, Post
+
+
+class PostForm(forms.ModelForm):
+    title = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'title'}))
+    post_type = forms.ChoiceField(choices=[('article', 'Article'), ('news', 'News')], initial='article', widget=forms.Select(attrs={'class': 'form-control', 'placeholder': 'Post Type'}))
+    content = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5}), required=False)
+    image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}))
+    class Meta:
+        model = Post
+        fields = ['title', 'post_type', 'content', 'image']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }
 
 
 class RegisterForm(UserCreationForm):

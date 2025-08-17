@@ -1,0 +1,19 @@
+<h1>Specific Post Details</h1>
+{% block title %}Post Details{% endblock %}
+
+{% block content %}
+    <h2>{{ post.title }}</h2>
+    <p>by {{ post.author.username }} on {{ post.published_date|date:"Y-m-d" }}</p>
+    <div>
+        <p>{{ post.content }}</p>
+    </div>
+    
+    {% if user.is_authenticated %}
+        {% if user == post.author %}
+            <a href="{% url 'post-update' post.pk %}">Edit</a> |
+            <a href="{% url 'post-delete' post.pk %}">Delete</a>
+        {% endif %}
+    {% endif %}
+    <hr>
+    <a href="{% url 'post-list' %}">Back to Posts List</a>
+{% endblock %}
