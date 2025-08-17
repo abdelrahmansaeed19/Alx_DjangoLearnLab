@@ -7,6 +7,7 @@ from .forms import RegisterForm, UserUpdateForm, ProfileUpdateForm, PostForm
 from django.contrib import messages
 from django.urls import reverse_lazy
 from .models import Post
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 class HomePageView(TemplateView):
     template_name = 'blog/base.html'
@@ -92,7 +93,7 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'
     success_url = reverse_lazy('post-list')
-    
+
 
 
 
