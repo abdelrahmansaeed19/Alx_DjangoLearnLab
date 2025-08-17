@@ -11,7 +11,7 @@ class HomePageView(TemplateView):
     template_name = 'blog/base.html'
 class CustomLoginView(LoginView):
     redirect_authenticated_user = True
-    template_name = 'blog/login.html'
+    template_name = 'registration/login.html'
     def get_success_url(self):
         messages.success(self.request, "You have successfully logged in.")
         return reverse_lazy('home')
@@ -24,15 +24,15 @@ class CustomLogoutView(LogoutView):
     pass
 
 class ProfileDetailView(LoginRequiredMixin, TemplateView):
-    template_name = 'blog/detail.html'
+    template_name = 'profile/detail.html'
 
 class ProfileUpdateView(LoginRequiredMixin, FormView):
-    template_name = 'blog/_edit.html'
+    template_name = 'profile/_edit.html'
     form_class = ProfileUpdateForm
     success_url = reverse_lazy('profile-detail')
 
 class RegisterView(FormView):
-    template_name = 'blog/register.html'
+    template_name = 'registration/register.html'
     form_class = RegisterForm
     redirect_authenticated_user = True
     success_url = reverse_lazy('profile-detail')
