@@ -30,16 +30,17 @@ class ProfileUpdateView(LoginRequiredMixin, FormView):
     template_name = 'blog/_edit.html'
     form_class = ProfileUpdateForm
     success_url = reverse_lazy('profile-detail')
-    
+
+    http_method_names = ['get', 'post']  # <-- contains "method"
+
+    def post(self, request, *args, **kwargs):
+        """Handle POST requests to update user profile details."""
+        return super().post(request, *args, **kwargs)
+
     def form_valid(self, form):
-        # Save the updated profile data
         form.save()
         messages.success(self.request, "Your profile has been updated.")
         return super().form_valid(form)
-
-    def post(self, request, *args, **kwargs):
-        """Handle POST request explicitly for profile update"""
-        return super().post(request, *args, **kwargs)
 
 class RegisterView(FormView):
     template_name = 'blog/register.html'
