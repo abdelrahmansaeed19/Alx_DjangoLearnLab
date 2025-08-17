@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from .models import Post, Comment
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 class HomePageView(TemplateView):
     template_name = 'blog/base.html'
@@ -143,6 +144,15 @@ class CommentDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return Comment.objects.filter(post__id=self.kwargs['pk']).order_by('-created_at')
 
-
+def search_posts(request):
+    query = request.GET.get("q")
+    results = []
+    if query:
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
+    return render(request, "blog/search_results.html", {"results": results, "query": query})
 
 
