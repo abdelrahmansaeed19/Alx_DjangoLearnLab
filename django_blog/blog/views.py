@@ -32,10 +32,10 @@ class ProfileUpdateView(LoginRequiredMixin, FormView):
     success_url = reverse_lazy('profile-detail')
 
 class RegisterView(FormView):
-    #template_name = 'blog/registration/register.html'
+    template_name = 'registration/register.html'
     form_class = RegisterForm
     redirect_authenticated_user = True
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('profile-detail')
 
     def form_valid(self, form):
         user = form.save()
