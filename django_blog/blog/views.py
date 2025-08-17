@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView, DetailView, UpdateView, CreateView, ListView, DeleteView
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView, FormView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import login
 from .forms import RegisterForm, UserUpdateForm, ProfileUpdateForm, PostForm
 from django.contrib import messages
 from django.urls import reverse_lazy
 from .models import Post
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 
 class HomePageView(TemplateView):
     template_name = 'blog/base.html'
@@ -79,7 +79,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, "Post created successfully.")
         return super(PostCreateView, self).form_valid(form)
     
-class PostUpdateView(LoginRequiredMixin, UpdateView):
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
