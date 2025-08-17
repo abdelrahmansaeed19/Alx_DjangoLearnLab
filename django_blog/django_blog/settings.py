@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,7 +59,7 @@ ROOT_URLCONF = 'django_blog.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Directory for custom templates
+        'DIRS': [os.path.join(BASE_DIR, 'templates/')],  # Directory for custom templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,9 +83,7 @@ DATABASES = {
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'mssql',
         'NAME': 'BlogDB',  # Replace with your database name
-        'USER': '',  # Replace with your database username
-        'PASSWORD': '',  # Replace with your database password
-        'HOST': '127.0.0.1,1434',  # Replace with your database host
+        'HOST': '127.0.0.1,1433',  # Replace with your database host
         'PORT': '',  # Default port for MSSQL
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',  # Ensure you have the correct ODBC driver installed
@@ -95,6 +94,10 @@ DATABASES = {
     }
 }
 
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "login"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -133,7 +136,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR  / "blog" / "static",  # Directory for static files in the blog app
+    BASE_DIR / "blog" / "static",  # Directory for static files in the blog app
 ]
 
 # Default primary key field type
