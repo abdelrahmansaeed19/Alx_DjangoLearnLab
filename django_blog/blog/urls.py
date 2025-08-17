@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 from .views import HomePageView, CustomLoginView, CustomLogoutView
-from .views import  PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
+from .views import  PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, PostByTagListView
 from .views import ProfileDetailView, ProfileUpdateView, RegisterView
 from .views import CommentCreateView, CommentUpdateView, CommentDeleteView, CommentListView, CommentDetailView
 
@@ -29,6 +29,7 @@ urlpatterns = [
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment-delete'),
     path('search/', views.search_posts, name='post-search'),
     path("tags/<slug:tag_slug>/", views.PostListView.as_view(), name='post-by-tag'),
+    path('tag/<slug:tag_slug>/', PostByTagListView.as_view(), name='post-by-tag'),
     # path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
     # path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
 ]
