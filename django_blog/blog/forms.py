@@ -4,7 +4,7 @@ from typing import Any
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile, Post
+from .models import Profile, Post, Comment
 
 
 class PostForm(forms.ModelForm):
@@ -19,6 +19,15 @@ class PostForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }
+
+class CommentForm(forms.ModelForm):
+    content = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}), label='Comment')
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
 
