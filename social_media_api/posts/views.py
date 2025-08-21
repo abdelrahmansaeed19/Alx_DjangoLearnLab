@@ -1,0 +1,170 @@
+from django.shortcuts import render
+from django.views.generic import TemplateView, DetailView, UpdateView, CreateView, ListView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from .forms import PostForm, CommentForm
+from django.contrib import messages
+from django.urls import reverse_lazy
+from .models import Post, Comment
+from django.db.models import Q
+
+class HomePageView(TemplateView):
+    template_name = 'base.html'
+# class CustomLoginView(LoginView):
+#     redirect_authenticated_user = True
+#     template_name = 'posts/login.html'
+#     def get_success_url(self):
+#         messages.success(self.request, "You have successfully logged in.")
+#         return reverse_lazy('home')
+    
+#     def form_invalid(self, form):
+#         messages.error(self.request, "Invalid username or password.")
+#         return self.render_to_response(self.get_context_data(form=form))
+
+# class CustomLogoutView(LogoutView):
+#     pass
+
+# class ProfileDetailView(LoginRequiredMixin, TemplateView):
+#     template_name = 'posts/profile_detail.html'
+
+# class ProfileUpdateView(LoginRequiredMixin, FormView):
+#     template_name = 'posts/profile_edit.html'
+#     form_class = ProfileUpdateForm
+#     success_url = reverse_lazy('profile-detail')
+
+#     http_method_names = ['get', 'post']  # <-- contains "method"
+
+#     def post(self, request, *args, **kwargs):
+#         """Handle POST requests to update user profile details."""
+#         return super().post(request, *args, **kwargs)
+
+#     def form_valid(self, form):
+#         form.save()
+#         messages.success(self.request, "Your profile has been updated.")
+#         return super().form_valid(form)
+
+# class RegisterView(FormView):
+#     template_name = 'posts/register.html'
+#     form_class = RegisterForm
+#     redirect_authenticated_user = True
+#     success_url = reverse_lazy('profile-detail')
+
+#     def form_valid(self, form):
+#         user = form.save()
+#         if user:
+#             login(self.request, user)
+#         messages.success(self.request, "Registration successful. You can now log in.")
+#         return super().form_valid(form)
+    
+class PostListView(ListView):
+    model = Post
+    template_name = 'posts/post_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'posts/post_detail.html'
+    context_object_name = 'post'
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'posts/post_form.html'
+    success_url = reverse_lazy('post-list')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        messages.success(self.request, "Post created successfully.")
+        return super(PostCreateView, self).form_valid(form)
+    
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'posts/post_form.html'
+    success_url = reverse_lazy('post-list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "Post updated successfully.")
+        return super(PostUpdateView, self).form_valid(form)
+    
+class PostDeleteView(LoginRequiredMixin, DeleteView):
+    model = Post
+    template_name = 'posts/post_confirm_delete.html'
+    success_url = reverse_lazy('post-list')
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
+    fields = ['content']
+    template_name = 'posts/comment_form.html'
+    success_url = reverse_lazy('post-list')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.post = Post.objects.get(pk=self.kwargs['pk'])
+        messages.success(self.request, "Comment added successfully.")
+        return super(CommentCreateView, self).form_valid(form)
+    
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+    fields = ['content']
+    template_name = 'posts/comment_form.html'
+    success_url = reverse_lazy('post-list')
+    def form_valid(self, form):
+        messages.success(self.request, "Comment updated successfully.")
+        return super(CommentUpdateView, self).form_valid(form)
+    
+class CommentDeleteView(LoginRequiredMixin, DeleteView):
+    model = Comment
+    template_name = 'posts/comment_confirm_delete.html'
+    success_url = reverse_lazy('post-list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Comment deleted successfully.")
+        return super(CommentDeleteView, self).delete(request, *args, **kwargs)
+
+class CommentListView(LoginRequiredMixin, ListView):
+    model = Comment
+    template_name = 'posts/comment_list.html'
+    context_object_name = 'comments'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Comment.objects.filter(post__id=self.kwargs['pk']).order_by('-created_at')
+
+class CommentDetailView(LoginRequiredMixin, DetailView):
+    model = Comment
+    template_name = 'posts/comment_detail.html'
+    context_object_name = 'comment'
+
+    def get_queryset(self):
+        return Comment.objects.filter(post__id=self.kwargs['pk']).order_by('-created_at')
+
+
+def search_posts(request):
+    query = request.GET.get("q")
+    results = []
+    if query:
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
+    return render(request, "posts/search_results.html", {"results": results, "query": query})
+
+
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'posts/post_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        return Post.objects.filter(tags__slug=tag_slug).distinct().order_by('-published_date')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.kwargs.get('tag_slug')
+        return context
+    

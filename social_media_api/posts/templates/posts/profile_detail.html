@@ -1,0 +1,18 @@
+<h1>Profile</h1>
+
+
+{% block title %}Profile Detail{% endblock %}
+
+{% block content %}
+<h2>{{ user.username }}'s Profile</h2>
+<p>Email: {{ user.email }}</p>
+<p>Joined: {{ user.date_joined }}</p>
+
+{% if user.profile.Bio or user.profile.location %}
+    <h3>Profile Information</h3>
+    <p>Bio: {{ user.profile.bio }}</p>
+    <p>Location: {{ user.profile.location }}</p>
+{% else %}
+    <p>No additional profile information available.</p>
+{% endif %}
+{% endblock %}
