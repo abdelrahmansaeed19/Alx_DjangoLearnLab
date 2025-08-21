@@ -37,6 +37,6 @@ class LoginSerializer(serializers.Serializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = get_user_model()
         fields = ["id", "username", "email", "bio", "profile_picture", "followers", "following"]
         read_only_fields = ["followers", "following"]
