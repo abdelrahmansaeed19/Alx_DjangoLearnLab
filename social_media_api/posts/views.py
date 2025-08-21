@@ -1,55 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView, DetailView, UpdateView, CreateView, ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .forms import PostForm, CommentForm
 from django.contrib import messages
 from django.urls import reverse_lazy
-from .models import Post, Comment
-from rest_framework import viewsets
+from .models import Post, Comment, Like
+from rest_framework import viewsets, status, generics, permissions
 from .pagination import PostPagination
-from rest_framework import generics, permissions
 from .serializers import PostSerializer, CommentSerializer
 from django.db.models import Q
-
-class HomePageView(TemplateView):
-    template_name = 'base.html'
-    
-class PostListView(ListView):
-    model = Post
-    template_name = 'posts/post_list.html'
-    context_object_name = 'posts'
-    paginate_by = 10
-
-class PostDetailView(DetailView):
-    model = Post
-    template_name = 'posts/post_detail.html'
-    context_object_name = 'post'
-
-class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
-    form_class = PostForm
-    template_name = 'posts/post_form.html'
-    success_url = reverse_lazy('post-list')
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        messages.success(self.request, "Post created successfully.")
-        return super(PostCreateView, self).form_valid(form)
-    
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Post
-    form_class = PostForm
-    template_name = 'posts/post_form.html'
-    success_url = reverse_lazy('post-list')
-
-    def form_valid(self, form):
-        messages.success(self.request, "Post updated successfully.")
-        return super(PostUpdateView, self).form_valid(form)
-    
-class PostDeleteView(LoginRequiredMixin, DeleteView):
-    model = Post
-    template_name = 'posts/post_confirm_delete.html'
-    success_url = reverse_lazy('post-list')
+from rest_framework.response import Response
+from notifications.models import Notification
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -107,7 +68,82 @@ class FeedView(generics.ListAPIView):
         posts = Post.objects.filter(author__in=following_users).order_by("-created_at")
         # Get posts from followed users
         return Post.objects.filter(author__in=following_users).order_by("-published_date")
+    
+class LikePostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        if not created:
+            return Response({"detail": "You already liked this post."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # ✅ create notification for post author
+        if post.author != request.user:
+            Notification.objects.create(
+                recipient=post.author,
+                actor=request.user,
+                verb="liked your post",
+                target=post
+            )
+
+        return Response({"status": "Post liked"}, status=status.HTTP_201_CREATED)
+
+
+class UnlikePostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+
+        like = Like.objects.filter(user=request.user, post=post).first()
+        if not like:
+            return Response({"detail": "You haven’t liked this post yet."}, status=status.HTTP_400_BAD_REQUEST)
+
+        like.delete()
+        return Response({"status": "Post unliked"}, status=status.HTTP_200_OK)
         
+
+class HomePageView(TemplateView):
+    template_name = 'base.html'
+    
+class PostListView(ListView):
+    model = Post
+    template_name = 'posts/post_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'posts/post_detail.html'
+    context_object_name = 'post'
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'posts/post_form.html'
+    success_url = reverse_lazy('post-list')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        messages.success(self.request, "Post created successfully.")
+        return super(PostCreateView, self).form_valid(form)
+    
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'posts/post_form.html'
+    success_url = reverse_lazy('post-list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "Post updated successfully.")
+        return super(PostUpdateView, self).form_valid(form)
+    
+class PostDeleteView(LoginRequiredMixin, DeleteView):
+    model = Post
+    template_name = 'posts/post_confirm_delete.html'
+    success_url = reverse_lazy('post-list')
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm

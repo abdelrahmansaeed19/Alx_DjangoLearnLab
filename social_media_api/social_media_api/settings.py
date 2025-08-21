@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',  # Django REST Framework for API support
     'accounts.apps.AccountsConfig',  # Your accounts app
     'taggit',  # Django Taggit for tagging functionality
+    'notifications.apps.NotificationsConfig',  # Your notifications app
 ]
 
 REST_FRAMEWORK = {
