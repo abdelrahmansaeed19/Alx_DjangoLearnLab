@@ -102,11 +102,11 @@ class FeedView(generics.ListAPIView):
 
     def get_queryset(self):
         # Get users the current user follows
-        followed_users = self.request.user.following.all()
+        following_users = self.request.user.following.all()
 
-        posts = Post.objects.filter(author__in=followed_users).order_by("-created_at")
+        posts = Post.objects.filter(author__in=following_users).order_by("-created_at")
         # Get posts from followed users
-        return Post.objects.filter(author__in=followed_users).order_by("-published_date")
+        return Post.objects.filter(author__in=following_users).order_by("-published_date")
         
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
