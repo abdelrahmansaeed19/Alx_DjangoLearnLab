@@ -5,6 +5,7 @@ from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from .models import CustomUser
+
 from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer
 
 

@@ -5,55 +5,14 @@ from .forms import PostForm, CommentForm
 from django.contrib import messages
 from django.urls import reverse_lazy
 from .models import Post, Comment
+from rest_framework import viewsets
+from .pagination import PostPagination
+from rest_framework import generics, permissions
+from .serializers import PostSerializer, CommentSerializer
 from django.db.models import Q
 
 class HomePageView(TemplateView):
     template_name = 'base.html'
-# class CustomLoginView(LoginView):
-#     redirect_authenticated_user = True
-#     template_name = 'posts/login.html'
-#     def get_success_url(self):
-#         messages.success(self.request, "You have successfully logged in.")
-#         return reverse_lazy('home')
-    
-#     def form_invalid(self, form):
-#         messages.error(self.request, "Invalid username or password.")
-#         return self.render_to_response(self.get_context_data(form=form))
-
-# class CustomLogoutView(LogoutView):
-#     pass
-
-# class ProfileDetailView(LoginRequiredMixin, TemplateView):
-#     template_name = 'posts/profile_detail.html'
-
-# class ProfileUpdateView(LoginRequiredMixin, FormView):
-#     template_name = 'posts/profile_edit.html'
-#     form_class = ProfileUpdateForm
-#     success_url = reverse_lazy('profile-detail')
-
-#     http_method_names = ['get', 'post']  # <-- contains "method"
-
-#     def post(self, request, *args, **kwargs):
-#         """Handle POST requests to update user profile details."""
-#         return super().post(request, *args, **kwargs)
-
-#     def form_valid(self, form):
-#         form.save()
-#         messages.success(self.request, "Your profile has been updated.")
-#         return super().form_valid(form)
-
-# class RegisterView(FormView):
-#     template_name = 'posts/register.html'
-#     form_class = RegisterForm
-#     redirect_authenticated_user = True
-#     success_url = reverse_lazy('profile-detail')
-
-#     def form_valid(self, form):
-#         user = form.save()
-#         if user:
-#             login(self.request, user)
-#         messages.success(self.request, "Registration successful. You can now log in.")
-#         return super().form_valid(form)
     
 class PostListView(ListView):
     model = Post
@@ -92,6 +51,51 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'posts/post_confirm_delete.html'
     success_url = reverse_lazy('post-list')
 
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    """
+    Only the author can edit or delete the object.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # Allow read-only for safe methods
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        # Allow write only if the user is the author
+        return obj.author == request.user
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all().order_by("-published_date")
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    pagination_class = PostPagination
+
+        # Filtering
+    filterset_fields = ["author__username"]  # e.g. ?author__username=alice
+
+    # Searching
+    search_fields = ["title", "content"]  # e.g. ?search=django
+
+    # Ordering
+    ordering_fields = ["published_date", "title"]  # e.g. ?ordering=title
+    ordering = ["-published_date"]  # default ordering
+
+    def perform_create(self, serializer):
+        # Automatically assign the logged-in user as author
+        serializer.save(author=self.request.user)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all().order_by("-created_at")
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    pagination_class = PostPagination
+
+    def perform_create(self, serializer):
+        # Automatically assign logged-in user as author
+        serializer.save(author=self.request.user)
+        
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
@@ -141,6 +145,22 @@ class CommentDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return Comment.objects.filter(post__id=self.kwargs['pk']).order_by('-created_at')
 
+
+class CommentListCreateAPI(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Comment.objects.filter(post__id=self.kwargs["pk"])
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, post_id=self.kwargs["pk"])
+
+
+class CommentDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 def search_posts(request):
     query = request.GET.get("q")

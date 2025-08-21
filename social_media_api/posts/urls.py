@@ -1,10 +1,15 @@
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from . import views
 from .views import HomePageView
 from .views import  PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, PostByTagListView
 from .views import CommentCreateView, CommentUpdateView, CommentDeleteView, CommentListView, CommentDetailView
+from rest_framework.routers import DefaultRouter
+from .views import PostViewSet, CommentViewSet
 
+router = DefaultRouter()
+router.register(r"posts", PostViewSet)
+router.register(r"comments", CommentViewSet)
 #app_name = "blog"
 
 
@@ -16,6 +21,7 @@ urlpatterns = [
     # path('register/', views.RegisterView.as_view(), name='register'),
     #path('profile/', views.ProfileDetailView.as_view(), name='profile-detail'),
     #path('profile/edit/', views.ProfileUpdateView.as_view(), name='profile-edit'),
+    path('api/', include(router.urls)),
     path('posts/', PostListView.as_view(), name='post-list'),
     path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
     path('post/new/', PostCreateView.as_view(), name='post-create'),
