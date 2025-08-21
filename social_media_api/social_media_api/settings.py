@@ -28,6 +28,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# # Security
+# SECURE_BROWSER_XSS_FILTER = True
+# X_FRAME_OPTIONS = "DENY"
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_SSL_REDIRECT = False   # True only if you have HTTPS
+
 
 # Application definition
 
@@ -158,8 +164,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_DIRS = [
-    BASE_DIR / "posts" / "static",  # Directory for static files in the posts app
+    BASE_DIR / "static",  # Directory for static files in the posts app
 ]
 
 # Default primary key field type
