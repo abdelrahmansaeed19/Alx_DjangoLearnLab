@@ -5,6 +5,9 @@ from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from .models import CustomUser
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from .serializers import UserSerializer
 
 from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer
 
@@ -48,3 +51,23 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def follow(self, request, pk=None):
+        user_to_follow = self.get_object()
+        if request.user == user_to_follow:
+            return Response({"error": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+        request.user.following.add(user_to_follow)
+        return Response({"status": f"You are now following {user_to_follow.username}"})
+
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def unfollow(self, request, pk=None):
+        user_to_unfollow = self.get_object()
+        request.user.following.remove(user_to_unfollow)
+        return Response({"status": f"You unfollowed {user_to_unfollow.username}"})

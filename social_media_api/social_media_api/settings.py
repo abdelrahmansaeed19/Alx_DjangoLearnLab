@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.filters'
+    'django_filters',
     'posts.apps.PostsConfig',  # Your posts app
     'rest_framework',  # Django REST Framework for API support
     'accounts.apps.AccountsConfig',  # Your accounts app
